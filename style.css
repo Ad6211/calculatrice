@@ -1,0 +1,68 @@
+/* Rapproché de votre code original, corrigé et simple */
+* { box-sizing: border-box; }
+body {
+    background-color: lightgrey;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 12px;
+}
+
+.calculatrice {
+    /* proche de votre valeur : 30% mais limité */
+    width: 30%;
+    max-width: 400px;
+    min-width: 260px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    padding: 16px;
+}
+
+#result {
+    width: 100%;
+    text-align: right;
+    font-size: 28px;
+    margin-bottom: 10px;
+    padding: 6px;
+}
+
+.btns {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    /* évite lignes trop grandes, plus pratique qu'une valeur fixe de 100px */
+    grid-auto-rows: 60px;
+    padding-top: 8px;
+}
+
+.btns button {
+    padding: 0;
+    border-radius: 10px;
+    border: 1px solid #999;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.value { background-color: lightgrey; }
+.operation { background-color: rgb(90, 130, 139); color: white; }
+
+/* classes utilitaires ajoutées */
+.btn-clear { background-color: red; color: white; }
+.btn-equal { background-color: #3566b5; color: white; }
+.span-2 { grid-column: span 2; }
+
+/* Responsive: si l'écran est petit, utiliser la largeur de la viewport */
+@media (max-width: 540px) {
+    .calculatrice { width: 90vw; }
+    #result { font-size: 20px; }
+    .btns { grid-auto-rows: 52px; gap: 6px; }
+}
