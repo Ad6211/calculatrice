@@ -75,10 +75,34 @@ const addToList = (calcul, value) => {
     
     scrollList.appendChild(newItem);
     
+    // Sauvegarder dans localStorage
+    saveToLocalStorage();
+    
     // Scroll automatiquement vers le bas
     setTimeout(() => {
         scrollList.scrollTop = scrollList.scrollHeight;
     }, 0);
+};
+
+const saveToLocalStorage = () => {
+    const list = document.querySelectorAll("#scroll-list li");
+    const data = Array.from(list).map(li => li.textContent);
+    localStorage.setItem('calculatrice-historique', JSON.stringify(data));
+};
+
+const loadFromLocalStorage = () => {
+    const data = JSON.parse(localStorage.getItem('calculatrice-historique'));
+    if (data && Array.isArray(data)) {
+        data.forEach(item => {
+            const scrollList = document.querySelector("#scroll-list");
+            const newItem = document.createElement("li");
+            newItem.textContent = item;
+            newItem.addEventListener("click", () => {
+                input.value = item.split("=")[1].trim();
+            });
+            scrollList.appendChild(newItem);
+        });
+    }
 };
 
 const equalButton = document.querySelector(".btn-equal");
@@ -99,5 +123,8 @@ input.addEventListener("keydown", (event) => {
         evaluate();
     }
 });
+
+// Charger l'historique au démarrage
+loadFromLocalStorage();
 
 })();

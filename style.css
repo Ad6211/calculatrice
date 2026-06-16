@@ -115,6 +115,23 @@ body {
 .btn-equal { background-color: #3566b5; color: white; }
 .span-2 { grid-column: span 2; }
 
+.btn-clear-history {
+    background-color: red;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    font-size: 14px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 10px;
+    transition: all 0.3s ease;
+}
+
+.btn-clear-history:hover {
+    background-color: darkred;
+}
+
 /* Responsive: si l'écran est petit, utiliser la largeur de la viewport */
 @media (max-width: 540px) {
     .calculatrice { width: 90vw; }
