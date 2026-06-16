@@ -1,5 +1,19 @@
 console.log("Script loaded");
 
+// Gestion du mode dark/light
+const btnTheme = document.querySelector("#btn-theme");
+const savedTheme = localStorage.getItem('theme');
+
+if (savedTheme === 'dark') {
+    document.body.classList.add('dark-mode');
+}
+
+btnTheme.addEventListener("click", () => {
+    document.body.classList.toggle('dark-mode');
+    const isDarkMode = document.body.classList.contains('dark-mode');
+    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+});
+
 (() => {
     const input = document.querySelector("#result");
 const clearButton = document.querySelector("#btn-clear");
@@ -185,6 +199,24 @@ input.addEventListener("keydown", (event) => {
         evaluate();
     }
 });
+
+// Recherche dans l'historique
+const searchInput = document.querySelector("#search");
+if (searchInput) {
+    searchInput.addEventListener("input", (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        const listItems = document.querySelectorAll("#scroll-list li");
+        
+        listItems.forEach(item => {
+            const itemText = item.querySelector("span").textContent.toLowerCase();
+            if (itemText.includes(searchTerm)) {
+                item.style.display = "flex";
+            } else {
+                item.style.display = "none";
+            }
+        });
+    });
+}
 
 // Charger l'historique au démarrage
 loadFromLocalStorage();
