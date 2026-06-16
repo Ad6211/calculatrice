@@ -13,7 +13,10 @@ clearButton.addEventListener("click", () => {
 
 document.querySelectorAll(".value").forEach((button) => {
     button.addEventListener("click", () => {
-        if (input.value.slice(-1) !== "." && button.textContent === ".") {
+        // Effacer Error ou Infinity en commençant un nouveau calcul
+        if (input.value === "Error" || input.value === "Infinity") {
+            input.value = button.textContent;
+        } else if (input.value.slice(-1) !== "." && button.textContent === ".") {
             input.value += button.textContent;
         } else if (input.value.slice(-1) === "." && button.textContent === ".") {
             // Do nothing, prevent multiple decimal points
@@ -24,6 +27,11 @@ document.querySelectorAll(".value").forEach((button) => {
 })
 document.querySelectorAll(".operation").forEach((button) => {
     button.addEventListener("click", () => {
+        // Effacer Error ou Infinity quand on commence une opération
+        if (input.value === "Error" || input.value === "Infinity") {
+            input.value = "";
+        }
+        
         if (input.value.slice(-1) !== "+" && input.value.slice(-1) !== "-" && input.value.slice(-1) !== "x" && input.value.slice(-1) !== "/" && input.value.slice(-1) !== "%") {
             input.value += button.textContent;
         } else {
@@ -46,8 +54,8 @@ const evaluate = () => {
         }
         const result = Function('"use strict"; return (' + expression + ')')();
         
-        // Vérifier seulement si c'est NaN
-        if (isNaN(result)) {
+        // Vérifier si c'est NaN ou Infinity
+        if (isNaN(result) || !isFinite(result)) {
             input.value = "Error";
             return;
         }
@@ -66,13 +74,33 @@ const evaluate = () => {
 const addToList = (calcul, value) => {
     const scrollList = document.querySelector("#scroll-list");
     const newItem = document.createElement("li");
-    newItem.textContent = calcul + " = " + value;
     
-    // Au clic, ajouter le contenu à l'input
-    newItem.addEventListener("click", () => {
-        input.value = newItem.textContent.split("=")[1].trim();
+    // Créer un span pour le texte
+    const textSpan = document.createElement("span");
+    textSpan.textContent = calcul + " = " + value;
+    textSpan.style.cursor = "pointer";
+    
+    // Au clic sur le texte, ajouter le contenu à l'input
+    textSpan.addEventListener("click", (e) => {
+        e.stopPropagation();
+        input.value = textSpan.textContent.split("=")[1].trim();
     });
     
+    // Créer un bouton supprimer
+    const deleteBtn = document.createElement("button");
+    deleteBtn.className = "delete-btn";
+    const deleteImg = document.createElement("img");
+    deleteImg.src = "https://cdn-icons-png.flaticon.com/512/1345/1345874.png";
+    deleteImg.alt = "Supprimer";
+    deleteBtn.appendChild(deleteImg);
+    deleteBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        newItem.remove();
+        saveToLocalStorage();
+    });
+    
+    newItem.appendChild(textSpan);
+    newItem.appendChild(deleteBtn);
     scrollList.appendChild(newItem);
     
     // Sauvegarder dans localStorage
@@ -86,7 +114,10 @@ const addToList = (calcul, value) => {
 
 const saveToLocalStorage = () => {
     const list = document.querySelectorAll("#scroll-list li");
-    const data = Array.from(list).map(li => li.textContent);
+    const data = Array.from(list).map(li => {
+        const span = li.querySelector("span");
+        return span ? span.textContent : li.textContent;
+    });
     localStorage.setItem('calculatrice-historique', JSON.stringify(data));
 };
 
@@ -96,10 +127,30 @@ const loadFromLocalStorage = () => {
         data.forEach(item => {
             const scrollList = document.querySelector("#scroll-list");
             const newItem = document.createElement("li");
-            newItem.textContent = item;
-            newItem.addEventListener("click", () => {
+            
+            const textSpan = document.createElement("span");
+            textSpan.textContent = item;
+            textSpan.style.cursor = "pointer";
+            
+            textSpan.addEventListener("click", (e) => {
+                e.stopPropagation();
                 input.value = item.split("=")[1].trim();
             });
+            
+            const deleteBtn = document.createElement("button");
+            deleteBtn.className = "delete-btn";
+            const deleteImg = document.createElement("img");
+            deleteImg.src = "https://cdn-icons-png.flaticon.com/512/1345/1345874.png";
+            deleteImg.alt = "Supprimer";
+            deleteBtn.appendChild(deleteImg);
+            deleteBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                newItem.remove();
+                saveToLocalStorage();
+            });
+            
+            newItem.appendChild(textSpan);
+            newItem.appendChild(deleteBtn);
             scrollList.appendChild(newItem);
         });
     }
@@ -114,6 +165,17 @@ input.addEventListener("keypress", (e) => {
     const allowed = "0123456789+-x/%eE";
     if (!allowed.includes(e.key)) {
         e.preventDefault(); // Bloque les caractères invalides
+        return;
+    }
+    
+    // Effacer Error ou Infinity quand on commence à taper
+    if (input.value === "Error" || input.value === "Infinity") {
+        if (/[0-9]/.test(e.key)) {
+            input.value = e.key;
+            e.preventDefault();
+        } else if (/[+\-x/%]/.test(e.key)) {
+            input.value = "";
+        }
     }
 });
 
